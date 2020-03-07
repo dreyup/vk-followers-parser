@@ -10,5 +10,5 @@
 ###< symfony/framework-bundle ###
 
 /.idea
-!/public/Files/.gitkeep
-/public/Files
+!/public/files/.gitkeep
+/public/files/*
