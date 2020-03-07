@@ -53,28 +53,7 @@ return followers;';
     }
 
     /**
-     * Get count of user followers by id from Vk API
-     *
-     * @param int $userId
-     * @return int
-     * @throws VKApiException
-     * @throws VKClientException
-     */
-    public function getFollowersCount(int $userId) :int
-    {
-        $response = $this->api->users()->get(
-            $this->accessToken,
-            [
-                'user_id' => $userId,
-                'fields' => 'followers_count'
-            ]
-        );
-
-        return $response[0]['followers_count'] ?? 0;
-    }
-
-    /**
-     * Get user followers by id from Vk API
+     * Get user's followers by id from Vk API
      *
      * @param int $userId
      * @return mixed
@@ -100,5 +79,48 @@ return followers;';
         }
 
         return $followers;
+    }
+
+    /**
+     * Get user's friends by id from Vk API
+     *
+     * @param int $userId
+     * @return mixed
+     * @throws VKApiException
+     * @throws VKClientException
+     */
+    public function getFriends(int $userId)
+    {
+        $response = $this->api->friends()->get(
+            $this->accessToken,
+            [
+                'user_id' => $userId,
+                // Use 100.000 as default. For getting more friends need to using in cycle or 'execute' API method
+                'count' => 100000
+            ]
+        );
+
+        return $response['items'] ?? [];
+    }
+
+        /**
+         * Get count of user's followers by id from Vk API
+         *
+         * @param int $userId
+         * @return int
+         * @throws VKApiException
+         * @throws VKClientException
+         */
+    private function getFollowersCount(int $userId) :int
+    {
+        $response = $this->api->users()->get(
+            $this->accessToken,
+            [
+                'user_id' => $userId,
+                'fields' => 'followers_count'
+            ]
+        );
+
+        return $response[0]['followers_count'] ?? 0;
     }
 }

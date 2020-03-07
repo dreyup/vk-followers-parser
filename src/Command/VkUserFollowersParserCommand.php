@@ -76,34 +76,37 @@ class VkUserFollowersParserCommand extends Command
                 throw new InvalidArgumentException('Access token is required', 400);
             }
 
-            $io->title("Start parsing followers of user with id {$this->userId}");
-
+            $io->title("Start parsing followers and friends of user with id {$this->userId}");
             $this->vkAPI = new VkApiClientWrapper($this->accessToken);
-            $followers   = $this->vkAPI->getFollowers($this->userId);
 
+            $io->text('Start parsing followers');
+            $followers = $this->vkAPI->getFollowers($this->userId);
             $io->text('Followers parsing done. Count of followers: ' . count($followers));
-            $io->text('Saving followers ids into file...');
 
-            $filename = $this->saveFollowerIdsIntoFile($this->userId, $followers);
+            $io->text('Start parsing friends');
+            $friends = $this->vkAPI->getFriends($this->userId);
+            $io->text('Friends parsing done. Count of friends: ' . count($friends));
 
-            $io->success("Followers were parsed and saved successfully into file {$filename}");
+            $io->text('Saving followers and friends ids into file...');
+            $filename = $this->saveIdsIntoFile($this->userId, array_merge($followers, $friends));
+            $io->success("Followers and friends were parsed and saved successfully into file {$filename}");
 
             return 1;
         } catch (\RuntimeException $exception) {
             $io->error($exception->getMessage());
-        }
 
-        return 0;
+            return 0;
+        }
     }
 
     /**
-     *  Saving followers ids into file
+     *  Saving followers and friends ids into file
      *
      * @param int   $userId
      * @param array $followers
      * @return string
      */
-    private function saveFollowerIdsIntoFile(int $userId, array $followers) :string
+    private function saveIdsIntoFile(int $userId, array $followers) :string
     {
         $filename = self::FILES_PATH . $userId . '|' . date('Y-m-d H:i:s');
 
